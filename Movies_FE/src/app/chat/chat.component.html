@@ -1,0 +1,155 @@
+<nav class="navbar navbar-default" *ngIf="logged;">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">{{user.username}}</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li [ngClass]="{'active': current === 'profile'}"><a (click)="profile()" href="#">Profile <span class="sr-only">(current)</span></a></li>
+         <li [ngClass]="{'active': current === 'main'}"><a (click)="main()" href="#">All Movies <span class="sr-only">(current)</span></a></li>
+        <li [ngClass]="{'active': current === 'upload'}"><a (click)="createVideo()" href="#"> <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>Upload</a></li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" (click)="logout()">Logout</a></li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="" *ngIf="current=='upload';">
+              <div class="form-group">
+                <label for="exampleFormControlFile1">Upload Poster</label>
+                <input type="file" class="form-control-file" name="file" (change)="handleFileInput($event.target.files)" id="exampleFormControlFile1" required>
+                  <input type="text" id="title" [(ngModel)]="video.title" class="fadeIn second" name="title" placeholder="title" required>
+                <button type="button" class="btn btn-success btn-s" (click)="upload()">Add Movie</button>
+                  <div *ngIf="error;" class="error">{{error}}</div>
+              </div>
+            </form>
+
+             <form action="" *ngIf="current=='edit';">
+              <div class="form-group">
+                <label for="exampleFormControlFile2">Edit</label>
+                <!--<input type="file" class="form-control-file" name="file" (change)="handleFileInput($event.target.files)" id="exampleFormControlFile2">-->
+                  <input type="text"  [(ngModel)]="video.title" class="fadeIn second" name="title" placeholder="title">
+                <button type="button" class="btn btn-success btn-s" (click)="edit()">Save</button>
+                  <div *ngIf="error;" class="error">{{error}}</div>
+              </div>
+            </form>
+
+        <div class="" *ngIf="current=='profile';">
+        <div class="gallery col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h1 class="gallery-title">My profile</h1>
+        </div>
+            <div class="row fix">
+                <div *ngFor="let v of myVideos" class="gallery_product col-lg-4 col-md-4 col-sm-4 col-xs-6 filter hdpe">
+                    <img  src="http://localhost:3000/uploads/{{v.path}}" class="img-responsive">
+                         <div class="caption">
+                            <h3>{{v.title}}</h3>
+                            <h4 *ngIf="v.rating">Rating: {{ v.rating | number:'1.2-2' }}/5</h4>
+                            <p>Uploaded by {{user.username}} on {{v.updated_at | date:"MM/dd/yyyy 'at' h:mma"}}</p>
+                             <button type="button" (click)="editPage(v)" class="btn btn-warning">Edit</button>
+                             <button type="button" (click)="delete(v)" class="btn btn-danger">Delete</button>
+                             <button type="button" (click)="toRate(v)" data-toggle="modal" data-target="#myModal" class="btn btn-success">Rate</button>
+                          </div>
+                </div>
+            </div>
+        </div>
+        <div class="" *ngIf="current=='main';">
+        <div class="gallery col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <h1 class="gallery-title">All movies</h1>
+        </div>
+            <div class="row fix">
+                <div *ngFor="let v of allVideos" class="gallery_product col-lg-4 col-md-4 col-sm-4 col-xs-6 filter hdpe">
+                    <img  src="http://localhost:3000/uploads/{{v.path}}" class="img-responsive">
+                         <div class="caption">
+                            <h3>{{v.title}}</h3>
+                            <h4 *ngIf="v.rating">Rating: {{ v.rating | number:'1.2-2' }}/5</h4>
+                            <p>Uploaded by {{v.uploaded_by.username}} on {{v.updated_at | date:"MM/dd/yyyy 'at' h:mma"}}</p>
+                             <button type="button" (click)="toRate(v)" data-toggle="modal" data-target="#myModal" class="btn btn-success">Rate</button>
+                          </div>
+                </div>
+            </div>
+        </div>
+
+                        <!-- Modal -->
+            <div id="myModal" class="modal fade" role="dialog">
+              <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Choose your rating</h4>
+                  </div>
+                  <div class="modal-body">
+                   <form #rateForm="ngForm" (ngSubmit)="rate(rateForm)" >
+                        <label class="radio-inline"><input type="radio" ngModel value="1" name="rating" required>1</label>
+                        <label class="radio-inline"><input type="radio" ngModel value="2" name="rating">2</label>
+                        <label class="radio-inline"><input type="radio" ngModel value="3" name="rating">3</label>
+                        <label class="radio-inline"><input type="radio" ngModel value="4" name="rating">4</label>
+                        <label class="radio-inline"><input type="radio" ngModel value="5" name="rating">5</label>
+                      <input type="submit" value="rate">
+                       </form>
+                  </div>
+
+                  <div class="modal-footer">
+                    <button #btnClose type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+                 <div class="wrapper fadeInDown" *ngIf="!logged;">
+                  <div id="formContent">
+                    <!-- Tabs Titles -->
+
+                    <!-- Login Form -->
+                    <form (ngSubmit)="createLogin()" #startpage="ngForm">
+                      <input type="text" id="username" [(ngModel)]="newUser.username" class="fadeIn second" name="username" placeholder="username" required>
+                      <input type="text" id="password" [(ngModel)]="newUser.password" class="fadeIn third" name="password" placeholder="password" required>
+                      <input type="submit" class="fadeIn fourth" value="Register">
+                      <button type="button" class="fadeIn fourth" (click)="login()">Login</button>
+                    </form>
+
+                    <!-- Remind Passowrd -->
+                    <div id="formFooter">
+                        <div *ngIf="error;" class="error">{{error}}</div>
+                    </div>
+
+                  </div>
+                 </div>
+
+             <div class="panel panel-primary" *ngIf="admin;">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-comment"></span> {{ msgData.room }}
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default btn-xs" (click)="logout()">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+                <div #scrollMe class="panel-body">
+                    <ul class="chat">
+                        <li *ngFor="let u of users">
+                            <span>{{u.username}}</span> <span>{{u.password}}</span><span>{{u.updated_at}}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
