@@ -2,7 +2,7 @@
 
 This is a simple CRUD application
 
-* Prepare Node.js and Angular CLI
+* Prepare Node.js,Angular CLI and MongoDB
 * Clone this repo
 * Run 'npm install' on both the front end and the backend
 * Run 'npm start' for the backend
