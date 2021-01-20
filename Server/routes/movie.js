@@ -159,6 +159,11 @@ router.post('/login', function (req, res, next) {
 });
 
 router.post('/upload', function (req, res, next) {
+      var dir = 'public/uploads';
+      if (!fs.existsSync(dir)){
+          fs.mkdirSync(dir);
+      }
+
      upload(req, res, function (err) {
        console.log(req.body)
       if (err) {
