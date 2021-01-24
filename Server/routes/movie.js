@@ -49,13 +49,14 @@ io.on('connection', function (socket) {
     });
   });
   socket.on('profile', function (data) {
-  console.log(data)
+  //console.log(data)
   Video.find({ uploaded_by: data })
   .populate({path: 'ratings', model: 'Rating'}).
   exec(function (err, videos) {
     if (err) {io.emit('profile-no', err);}
     //console.log('The videos are an array: ', videos);
     //io.emit('profile-yes', videos);
+      //console.log(sessionID)
     io.to(sessionID).emit('profile-yes', videos);
     });
   });
